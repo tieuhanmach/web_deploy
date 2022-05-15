@@ -17,66 +17,104 @@ def return_figures():
 
     # first chart plots arable land from 1990 to 2015 in top 10 economies 
     # as a line chart
+    df=pd.read_csv('./data/Unicorn_Clean.csv')
+    df['Date Joined Year']=df['Date Joined'].astype('datetime64[ns]').dt.year
+    
+    df_1=df[['Country','Valuation ($B)','Date Joined Year']]
+    df_1=df_1[df['Country'].isin(['United States'])]
+    df_1=df_1.groupby(['Country','Date Joined Year'])['Valuation ($B)'].sum().reset_index().sort_values(by='Date Joined Year',ascending=True)
+
+    df_1.columns=['Country','Year','Valuation']
+    df_1=df_1.tail(10)
+    x_val=df_1.Year.tolist()
+    y_val=df_1.Valuation.tolist()
     
     graph_one = []    
     graph_one.append(
       go.Scatter(
-      x = [0, 1, 2, 3, 4, 5],
-      y = [0, 2, 4, 6, 8, 10],
+      x = x_val,
+      y = y_val,
       mode = 'lines'
       )
     )
 
-    layout_one = dict(title = 'Chart One',
-                xaxis = dict(title = 'x-axis label'),
-                yaxis = dict(title = 'y-axis label'),
+    layout_one = dict(title = 'Valuation of Unicorn in US by year',
+                xaxis = dict(title = 'Year'),
+                yaxis = dict(title = 'Valuation ($B)'),
                 )
 
 # second chart plots ararble land for 2015 as a bar chart    
+    df_2=df[['Country','Valuation ($B)','Date Joined Year']]
+    df_2=df_2[df['Date Joined Year'].isin([2021])]
+    df_2=df_2.groupby(['Country','Date Joined Year'])['Valuation ($B)'].sum().reset_index().sort_values(by='Valuation ($B)',ascending=False)
+    df_2=df_2.head(10)
+    df_2.columns=['Country','Year','Valuation']
+    x_val=df_2.Country.tolist()
+    y_val=df_2.Valuation.tolist()
     graph_two = []
 
     graph_two.append(
       go.Bar(
-      x = ['a', 'b', 'c', 'd', 'e'],
-      y = [12, 9, 7, 5, 1],
+      x = x_val,
+      y = y_val,
       )
     )
 
-    layout_two = dict(title = 'Chart Two',
-                xaxis = dict(title = 'x-axis label',),
-                yaxis = dict(title = 'y-axis label'),
+    layout_two = dict(title = 'Valation ($B) by Country',
+                xaxis = dict(title = 'Country',),
+                yaxis = dict(title = 'Valuation ($B)'),
                 )
 
 
 # third chart plots percent of population that is rural from 1990 to 2015
+    
+    df_3=df[(df['Country']=='United States')&(df['Date Joined Year']==2021)]
+    df_3=df_3[['City','Valuation ($B)','Date Joined Year']]
+
+    df_3=df_3.groupby(['City','Date Joined Year'])['Valuation ($B)'].sum().reset_index().sort_values(by='Valuation ($B)',ascending=False)
+
+    df_3.columns=['City','Year','Valuation']
+    df_3=df_3.head(10)
     graph_three = []
+    x_val=df_3.City.tolist()
+    y_val=df_3.Valuation.tolist()
     graph_three.append(
       go.Scatter(
-      x = [5, 4, 3, 2, 1, 0],
-      y = [0, 2, 4, 6, 8, 10],
+      x = x_val,
+      y = y_val,
       mode = 'lines'
       )
     )
 
-    layout_three = dict(title = 'Chart Three',
-                xaxis = dict(title = 'x-axis label'),
-                yaxis = dict(title = 'y-axis label')
+    layout_three = dict(title = 'Valation of top 10 City in US in 2021',
+                xaxis = dict(title = 'City'),
+                yaxis = dict(title = 'Valuation ($B)')
                        )
     
 # fourth chart shows rural population vs arable land
+    top_5=['Fintech','Internet software & services','Artificial intelligence','E-commerce & direct-to-consumer','Health']
+    df_4=df[df['Industry'].isin(top_5)]
+    df_4=df_4[['Industry','Valuation ($B)','Date Joined Year']]
+
+    df_4=df_4.groupby(['Industry','Date Joined Year'])['Valuation ($B)'].sum().reset_index().sort_values(by='Valuation ($B)',ascending=False)
+
+    df_4.columns=['Industry','Year','Valuation']
     graph_four = []
-    
-    graph_four.append(
+    for ind in top_5:
+        x_val=df_4[df_4['Industry']==ind].Year.tolist()
+        y_val=df_4[df_4['Industry']==ind].Valuation.tolist()
+        graph_four.append(
       go.Scatter(
-      x = [20, 40, 60, 80],
-      y = [10, 20, 30, 40],
-      mode = 'markers'
+      x = x_val,
+      y = y_val,
+      mode = 'lines',
+      name=ind
       )
     )
 
-    layout_four = dict(title = 'Chart Four',
-                xaxis = dict(title = 'x-axis label'),
-                yaxis = dict(title = 'y-axis label'),
+    layout_four = dict(title = 'Valuation of Industry by Year',
+                xaxis = dict(title = 'Year'),
+                yaxis = dict(title = 'Valuation ($B)'),
                 )
     
     # append all charts to the figures list
